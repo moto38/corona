@@ -14,29 +14,31 @@ isolationRate = 0.1
 preventtime = 30  #isolationRate change timing
 preventrate = 0.1   #preventrate 1==unchange
 infectrate = Nreproduction*isolationRate
+rod=0.02 # rate of die
+initialrate= 0.001   # 0.0005 initial infected rate0.5%
 
-infectTermv = viruslife+1
-recovered=viruslife+1
+recovered = viruslife+1
+death = recovered * 10
 level1 = recovered + viruslife
 
-initialrate= 0.001   # 0.0005 initial infected rate0.5%
 initialinfected = msize*msize*initialrate
 # Cells state
 #
 # 0 noinfect
-# 15 recovered type 1
-# 29 infect type 1
+# 15 recovered
+# 29 infect
+# 150 death
 
 Ug = np.zeros((msize, msize), float)
 
 def infectp(c):
-    return 1 if (c % infectTermv) != 0 else 0
+    return 1 if (c % recovered ) != 0 else 0
 
 def infecttrial(neighborsList):
         #print(neighborsList)
         p = 0
         for c in neighborsList:
-                if c % infectTermv != 0 :
+                if c % recovered != 0 :
                         if infectrate > random.random():
                                 p = p + 1
         #print("{}  ".format(p))
@@ -87,24 +89,31 @@ def neighborList(U, x, y):
 
 
 def infect(U):
-        mx = len(U)
-        U_next = np.zeros_like(U)
-        for i in range(mx):
-                my = len(U[i])
-                for j in range(my):
-                        if U[i][j] < recovered:
-                                neighbors = neighborList(U , i, j)
-                                p = infecttrial(neighbors)
-                                if p  >= 1:
-                                        U_next[i][j] = level1
-                                else:
-                                        U_next[i][j] = U[i][j]
-                        else:
-                                if U[i][j] != recovered:
-                                        U_next[i][j] = U[i][j] - 1
-                                else:
-                                        U_next[i][j] = U[i][j]
-        return U_next
+    mx = len(U)
+    U_next = np.zeros_like(U)
+    for i in range(mx):
+        my = len(U[i])
+        for j in range(my):
+            cell = U[i][j]
+            if cell % recovered == 0 :
+                if cell < recovered: # no infected
+                    neighbors = neighborList(U , i, j)
+                    p = infecttrial(neighbors)
+                    if p  >= 1:
+                        U_next[i][j] = level1
+                    else:
+                        U_next[i][j] = cell
+                else: ## death
+                    U_next[i][j] = cell
+            else : # infected
+                if cell != recovered:
+                    if rod > random.random() :
+                        U_next[i][j] = death
+                    else:
+                        U_next[i][j] = cell - 1
+                else:
+                    U_next[i][j] = cell
+    return U_next
 
 
 def initcells(U, rate , initv ):
@@ -141,19 +150,26 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 img = ax.imshow(Ug, interpolation="nearest") #, cmap=plt.cm.gray)
 
-def plotgraph(plt, time, noinfect, infected, recovered):
+def plotgraph(plt, time, noinfect, infected, recovered, death):
     plt.plot(time, noinfect)
     plt.plot(time, infected)
     plt.plot(time, recovered)
+    plt.plot(time, death)
     plt.show()
     
 elapsed = 0
-print('time,no infect,total infected, recovered, infectrate')
+print('time,no infect,total infected, recovered, death, infectrate')
 
 N_time=[]
 N_noinfect=[]
 N_infected=[]
+#N_infected_today=[]
 N_recovered=[]
+#N_recovered_today=[]
+N_death=[]
+
+n_noinfect = np.count_nonzero(Ug == 0)
+n_recovered = np.count_nonzero(Ug == recovered)
 
 while True:
         Ug=infect(Ug)
@@ -161,16 +177,27 @@ while True:
         img.set_data(Ug)
         ax.set_title("t = {}".format(elapsed))
 
+        #n_pre_noinfect = n_noinfect
+        #n_pre_recovered = n_recovered
+        
         n_noinfect = np.count_nonzero(Ug == 0)
-        n_infected = np.count_nonzero(Ug > recovered)
+        n_infected = np.count_nonzero(Ug % recovered > 0)
+        #n_infected_today = n_noinfect - n_pre_noinfect
+        
         n_recovered = np.count_nonzero(Ug == recovered)
+        #n_recovered_today = n_recovered - n_pre_recovered
+        
+        n_death = np.count_nonzero(Ug == death)
         
         N_time.append( elapsed )
-        N_noinfect.append( n_noinfect if n_noinfect > 0 else 0 )
-        N_infected.append( n_infected if n_infected > 0 else 0 )
-        N_recovered.append( n_recovered if n_recovered > 0 else 0 )
+        N_noinfect.append( n_noinfect )
+        N_infected.append( n_infected )
+        N_recovered.append( n_recovered )
+        N_death.append( n_death )
+        #N_infected_today.append( n_infected_today )
+        #N_recovered_today.append( n_recovered_today )
 
-        print('{},{},{},{},{}'.format(elapsed, n_noinfect , n_infected , n_recovered ,infectrate))
+        print('{},{},{},{},{},{}'.format(elapsed, n_noinfect, n_infected, n_recovered, n_death, infectrate))
 
         if n_infected == 0:
             break
@@ -183,6 +210,6 @@ while True:
         elapsed += 1
 
 input("Close Figure Window.")        
-plt.plot(N_time, N_infected)
+plt.plot(N_time, N_infected, N_death)
 plt.show()
 #plotgraph(plt , N_time, N_noinfect, N_infected, N_recovered)
