@@ -75,10 +75,10 @@ The default quarantine(preventation) start timing is t = 30.
 | Variable   | Content                                                                                                        |
 |------------|----------------------------------------------------------------------------------------------------------------|
 | infectrate | Infectivity. Nreproduction * isolationrate. Numerical value actually used to determine whether to be infected. |
-| recovered  | Value of the cell in recovery state.   viruslife + 1                                                           |
-| level1     | Value of the cell in Infected.     recovered + viruslife                                                       |
-| death      | Value of the cell in death.      recovered × 10                                                               |
-|            |                                                                                                               |
+| recovered  | Value of the cell in recovery state. ( viruslife + 1 = recovered )                                             |
+| level1     | Initial cell value of infection. ( recovered + viruslife = level1 )                                            |
+| death      | Value of the cell in death.     ( recovered * 10 = death )                                                     |
+|            |                                                                                                                |
 
 
 
