@@ -26,7 +26,7 @@ Infection only occurs from neighboring cells.
 
 ### Cell's state
 
-| Number of Cell | State                                 |
+| Value of Cell | State                                 |
 |----------------|---------------------------------------|
 | 0              | Uninfected                            |
 | 15             | Recovered(Immunity acquisition)       |
@@ -64,8 +64,8 @@ The default quarantine(preventation) start timing is t = 30.
 | msize         | The size of one side of a two-dimensional grid of cellular automata. Execute with msize x msize grid.                                                                                                                                                       |
 | viruslife     | It is the period from infection to recovery. Default is 14. It is supposed to acquire immunity in 14 days. There is no incubation period, but if you are infectious during the incubation period, you can change the value including the incubation period. |
 | Nreproduction | Basic reproduction number(R0). It is adapted to the number of new coronaviruses produced in Tokyo(1.7).                                                                                                                                                     |
-| isolationRate | inverse of mean infectious period of tau. Change this number to control the infectivity. The bigger it is, the more easily it becomes infected. The smaller it is, the less likely it is to be infected.                                                    |
-| preventtime   | Time to start quarantine(preventation of epidmics). When Time (elapsed) reaches this number, infectrate is multiplied by preventrate. It can be said that people started to refrain from self-control.                                                      |
+| isolationRate | inverse of mean infectious period of tau. Change this value to control the infectivity. The bigger it is, the more easily it becomes infected. The smaller it is, the less likely it is to be infected.                                                    |
+| preventtime   | Time to start quarantine(preventation of epidmics). When Time (elapsed) reaches this value, infectrate is multiplied by preventrate. It can be said that people started to refrain from self-control.                                                      |
 | preventrate   | Effect of quarantine. Numerical value indicating the percentage of infectiousness that can be achieved by prevention of epidemics. When preventtime comes, infectrate is multiplied. Change infectrate. It is 1 when not quarantine.                        |
 | initialrate   | Initial infected cell ratio.                                                                                                                                                                                                                                |
 | rod           | rate of death.                                                                                                                                                                                                                                              |
