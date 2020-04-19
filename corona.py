@@ -15,7 +15,7 @@ preventtime = 30  #isolationRate change timing
 preventrate = 0.1   #preventrate 1==unchange
 infectrate = Nreproduction*isolationRate
 rod=0.02 # rate of die
-initialrate= 0.001   # 0.0005 initial infected rate0.5%
+initialrate= 0.001   # initial infected rate
 
 recovered = viruslife+1
 death = recovered * 10
@@ -29,7 +29,7 @@ initialinfected = msize*msize*initialrate
 # 29 infect
 # 150 death
 
-Ug = np.zeros((msize, msize), float)
+Ug = np.zeros((msize, msize), int)
 
 def infectp(c):
     return 1 if (c % recovered ) != 0 else 0
@@ -209,7 +209,7 @@ while True:
         plt.pause(0.01)
         elapsed += 1
 
-input("Close Figure Window.")        
+input("Close figure Window and hit return in this terminal to display graph of infection.")        
 plt.plot(N_time, N_infected, N_death)
 plt.show()
 #plotgraph(plt , N_time, N_noinfect, N_infected, N_recovered)
