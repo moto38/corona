@@ -1,79 +1,89 @@
-Coronaシミュレータ(COVID-19 のような感染形式を想定)
+Corona Simulator(like COVID-19)
 ====
+This is a virus infection simulator using cellular automata.
+This simulator is assuming a new coronavirus (COVID-19) as a simulation target.
 
-セルオートマトンでウィルス感染する様子をシミュレーションしてみました。
+But I'm not using reliable numbers for parameters.
+Please modify it appropriately according to the target.
 
-シミュレーション対象としては新型コロナウィルス(COVID-19)を想定しますが、
-パラメータに信頼ある数値を使用しているわけではないので、
-シミュレーションする方が、それぞれの対象にあわせてテキトーに
-修正してみてください。
 
-感染は確率的に発生しますが、確率もテキトーです。
-セルは、状態としては以下の状態を持つオートマトンになっています。
-- 非感染
-- 感染〜回復中
-- 回復(免疫獲得)
-- 死亡
+Infection occurs stochastically using random number.
+The probability is based on the situation in Tokyo, but it does not represent the actual situation.
+
+It is hoped that the user will adjust the parameters appropriately before use.
+
+
+Each cell of this cellular automaton has the following states.
+
+- Uninfected
+- Infected (From infection to recovery)
+- Recovered(Immunity acquisition)
+- Death
 
 ## Description
-単純2次元オートマトンです。
-境界条件は周期的境界条件です。
-隣接の8セルからの影響で確率的に感染します。
+Simple two-dimensional automaton with periodic boundary conditions.
+Infection only occurs from neighboring cells.
 
-セルの状態は
+### Cell's state
 
-| セルの数字 | 状態           |
-|------------|----------------|
-| 0          | 非感染         |
-| 15         | 回復(免疫獲得) |
-| 16-29      | 感染           |
-| 150 | 死亡 |
+| Number of Cell | State                                 |
+|----------------|---------------------------------------|
+| 0              | Uninfected                            |
+| 15             | Recovered(Immunity acquisition)       |
+| 16-29          | Infected (From infection to recovery) |
+| 150            | Death                                 |
+|                |                                       |
 
-です。
-感染者は1ステップごとに数値が1つ減り、15になると回復(免疫獲得)となります。
-感染しているかどうかの判定は、15の剰余が0でなければ感染、と判定しています。
-15は以下に示すviruslife+1。つまり回復状態を示す値です。
-オートマトンは感染者数が0になると止まります。
+The number of infected cells decreases by 1 for each step, and when it reaches 15, it will recover (immunity acquisition).
+A cell is infected if the remainder of "Recovered" in the cell value is not 0.
+"Recovered" is "viruslife" + 1. "viruslife" is default 14, so "Recovered" is default 15.
 
-初期状態にもよりますが、非感染のままで最後まで行く人がいたら、たぶんそれが「集団免疫」か「防疫」で守られた人です。
-集団免疫はごく稀です。
-回復者の間にのこる、初期状態とは違う色の斑点は死亡者になります。
-初期状態は適当なのでオートマトンのサイズが小さいと誰も感染していない時があります。再起動してください。
+### Stop condition
+The automaton stops when the number of infected people reaches 0.
 
-
-防疫をしない(preventrate=1)だと、感染者数の増加が止められません。緊急事態宣言の意味がどういうものか判ると思います。
-緊急事態宣言をないがしろにすると死亡率の上昇率もおさえられません。
-
-サンプルでは防疫の効果がよくわからない、かもしれませんが、数字と比較すると違いがあるのはわかると思います。
-- 防疫する t = 30 を境に防疫9割のほうは感染者数の減少が速い。
-- 防疫4割のほうは感染者数が減りはじめるものの全員近くが感染する。
+### Other
+Depending on the initial state, if there is a person who goes to the end without being infected, it is probably the person who has been protected by "herd immunity" or "prevention of epidemics".
+Herd immunity rarely occurs.
+Spot cells that differ from the initial state cell that remain during the "Recovered" cell are "Death".
+When the size of the automaton is small, sometimes no one is infected. Please retry.
 
 
+If you do not prevent the disease (preventrate = 1), the increase in the number of infected people cannot be stopped. 
+You'll understand what the declaration of an emergency means.
+The number of deaths will rise.
 
-### パラメータ
-| 変数名        | 内容                                                                                                                                                                                                                                                                                                                          |
-|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| msize         | セルオートマトンの2次元格子の1辺のサイズです。msize×msizeの格子で実行します。                                                                                                                                                                                                                                                |
-| viruslife     | 感染から回復するまでの期間です。14にしています。14日で免疫を獲得する想定です。潜伏期間なしですが、潜伏中に感染力がある場合は潜伏期間も含めた数値で構わないです。                                                                                                                                                              |
-| Nreproduction | 再生産数。ウィルスの感染力を示す数値。新型コロナウィルスの東京での再生産数に合わせています。                                                                                                                                                                                                                                  |
-| isolationRate | 感染性期間の逆数のような数値。単位時間あたりの感染者の発生数は 再生産数/感染性期間( [基本再生産数] https://ja.wikipedia.org/wiki/%E5%9F%BA%E6%9C%AC%E5%86%8D%E7%94%9F%E7%94%A3%E6%95%B0 )で表すそうなので、その計算用。感染力をコントロールするには、この数値を変更してください。大きくすると感染しやすくなります。小さくすると感染しにくくなります。隔離の度合い? |
-| preventtime   | 防疫体制が変更れる時間。時間(elapsed)が、この数値になると、infectrate に preventrate が乗じられます。緊急事態宣言に相当するタイミングとでもいえるかな。。                                                                                                                                                                     |
-| preventrate   | 防疫効果率。防疫体制で感染力が何割になるかを示した数値。preventtime になると infectrate に乗じられます。isolationRate がどんだけ変化するかを示したもの、とも言えます。防疫しない場合は1です。                                                                                                                                 |
-| initialrate   | 初期状態でどれだけ感染者がいるかを示しています。                                                                                                                                                                                                                                                                              |
-| rod           | rate of death = 死亡率です.                                                                                                                                                                                                                                                                                                   |
+The default quarantine(preventation) start timing is t = 30.
+- preventrate=0.1(Quarantine 90%) -> The number of infected people decreases rapidly.
+- preventrate=0.6(Quarantine 40%) -> The number of infected people cannot stop increasing.
 
-### 参考に
-| 変数名     | 内容                                                                                                                                               |
-|------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| infectrate | 感染力?。 Nreproduction×isolationrate で計算される数値。感染するかどうかの判定に実際に使用している数値。isolationRateでコントロールしてください。 |
-| recovered  | 回復状態. viruslife + 1                                                                                                                            |
-| level1     | 感染者の初期値。recovered + viruslife                                                                                                              |
-| death      | 死亡状態。 recovered × 10                                                                                                                         |
+
+
+### Prameters
+| Variable      | Content                                                                                                                                                                                                                                                     |
+|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| msize         | The size of one side of a two-dimensional grid of cellular automata. Execute with msize x msize grid.                                                                                                                                                       |
+| viruslife     | It is the period from infection to recovery. Default is 14. It is supposed to acquire immunity in 14 days. There is no incubation period, but if you are infectious during the incubation period, you can change the value including the incubation period. |
+| Nreproduction | Basic reproduction number(R0). It is adapted to the number of new coronaviruses produced in Tokyo(1.7).                                                                                                                                                     |
+| isolationRate | inverse of mean infectious period of tau. Change this number to control the infectivity. The bigger it is, the more easily it becomes infected. The smaller it is, the less likely it is to be infected.                                                    |
+| preventtime   | Time to start quarantine(preventation of epidmics). When Time (elapsed) reaches this number, infectrate is multiplied by preventrate. It can be said that people started to refrain from self-control.                                                      |
+| preventrate   | Effect of quarantine. Numerical value indicating the percentage of infectiousness that can be achieved by prevention of epidemics. When preventtime comes, infectrate is multiplied. Change infectrate. It is 1 when not quarantine.                        |
+| initialrate   | Initial infected cell ratio.                                                                                                                                                                                                                                |
+| rod           | rate of death.                                                                                                                                                                                                                                              |
+
+
+### Other variables
+| Variable   | Content                                                                                                        |
+|------------|----------------------------------------------------------------------------------------------------------------|
+| infectrate | Infectivity. Nreproduction * isolationrate. Numerical value actually used to determine whether to be infected. |
+| recovered  | Value of the cell in recovery state.   viruslife + 1                                                           |
+| level1     | Value of the cell in Infected.     recovered + viruslife                                                       |
+| death      | Value of the cell in death.      recovered × 10                                                               |
+|            |                                                                                                               |
 
 
 
 ## Demo
-防疫を4割減したものと9割減したものの例
+Example is preventrate=0.6(40%) and preventrate=0.1(90%)
 
 <video width="320" height="240" controls>
   <source src="prevent_rate4.mp4" type="video/mp4">
@@ -97,19 +107,22 @@ python corona.py
 ```
 
 ## Output 
-出力データは、時間、非感染者数、感染者数、回復者数、感染率 となっています。
+- Elaplsed time
+- Number of Uninfected
+- Number of Infected
+- Number of Recovered
+- infectrate
 
 
 ## Install
 
-Requirementに記載のモジュールを入れて実行してください。
+Install requirement modules.
 
 ```
 pip install numpy
 pip install scipy
 pip install matplotlib
 ```
-
 
 
 ## License
