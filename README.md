@@ -90,7 +90,7 @@ Example is preventrate=0.6(40%) and preventrate=0.1(90%)
   <source src="prevent_rate4.mp4" type="video/mp4">
 </video>
 
-!prevent_rate 90%](https://github.com/moto38/corona/raw/master/Figure_1_prevent_rate9.png)
+![prevent_rate 90%](https://github.com/moto38/corona/raw/master/Figure_1_prevent_rate9.png)
 <video width="320" height="240" controls>
   <source src="prevent_rate9.mp4" type="video/mp4">
 </video>
